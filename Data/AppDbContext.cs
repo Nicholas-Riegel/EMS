@@ -12,6 +12,26 @@ public class AppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // Replace with your actual Postgres credentials
-        optionsBuilder.UseNpgsql("Host=localhost;Database=ems_db;Username=postgres;Password=yourpassword");
+        optionsBuilder.UseNpgsql("Host=localhost;Database=ems_db;Username=nicholas");
+    }
+
+    public override int SaveChanges()
+    {
+        var entries = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+        foreach (var entry in entries)
+        {
+            if (entry.Entity is Employee employee)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    employee.CreatedAt = DateTime.UtcNow;
+                }
+                employee.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        return base.SaveChanges();
     }
 }

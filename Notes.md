@@ -103,6 +103,27 @@ public class AppDbContext : DbContext
         // Replace with your actual Postgres credentials
         optionsBuilder.UseNpgsql("Host=localhost;Database=ems_db;Username=nicholas");
     }
+
+    // for timestamps
+    public override int SaveChanges()
+    {
+        var entries = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+        foreach (var entry in entries)
+        {
+            if (entry.Entity is Employee employee)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    employee.CreatedAt = DateTime.UtcNow;
+                }
+                employee.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        return base.SaveChanges();
+    }
 }
 ```
 
@@ -149,7 +170,7 @@ Once you have your credentials, update them in `AppDbContext.cs` in the `OnConfi
 
 ---
 
-### - [ ] **Step 3: Update `Employee` model for EF Core**
+### - [x] **Step 3: Update `Employee` model for EF Core**
 
 Open `Models/Employee.cs` and make sure it looks like this:
 
@@ -164,13 +185,78 @@ public class Employee
     public int Id { get; set; }
     
     public string Name { get; set; } = string.Empty;
-    public string Position { get; set; } = string.Empty;
-    public decimal Salary { get; set; }
+    public int Age { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 ```
 
 **What changed:**
 - Added `using System.ComponentModel.DataAnnotations;` for the `[Key]` attribute
+Great question! `[Key]` is an **attribute** in C#. Attributes are metadata tags that provide extra information about your code to frameworks like EF Core.
+
+**The syntax:**
+```csharp
+[AttributeName]  // The attribute
+public int Id { get; set; }  // The thing it decorates
+```
+
+**How it works:**
+- Square brackets `[ ]` are C# syntax for attributes (nothing to do with arrays)
+- Attributes go on the line above (or sometimes same line) as what they describe
+- `[Key]` tells EF Core: "This property is the primary key for the database table"
+
+**Other common attributes you'll see:**
+
+```csharp
+[Required]  // Field cannot be null
+public string Name { get; set; }
+
+[MaxLength(100)]  // Maximum string length
+public string Position { get; set; }
+
+[Column("employee_salary")]  // Custom column name in database
+public decimal Salary { get; set; }
+```
+
+**In your case:**
+- `[Key]` comes from `System.ComponentModel.DataAnnotations`
+- It's optional if your property is named `Id` or `EmployeeId` (EF recognizes those automatically)
+- But using it makes your intent explicit and clear
+
+Think of attributes as sticky notes you put on your code to tell frameworks special instructions!
+Yes, exactly! C# `[Attributes]` are the same concept as:
+
+- **Python decorators:** `@property`, `@staticmethod`
+- **Java annotations:** `@Override`, `@Entity`, `@Column`
+- **TypeScript decorators:** `@Component`, `@Injectable`
+
+They all do the same thing - add metadata or modify behavior. Just different syntax:
+
+```python
+# Python
+@property
+def name(self):
+    return self._name
+```
+
+```java
+// Java
+@Entity
+@Table(name = "employees")
+public class Employee { }
+```
+
+```csharp
+// C#
+[Key]
+[Required]
+public int Id { get; set; }
+```
+
+C# went with square brackets `[ ]` while most other modern languages standardized on `@`. Same idea, different punctuation!
+
 - Added `[Key]` attribute to `Id` (tells EF this is the primary key)
 - Made sure all properties have `{ get; set; }` (required for EF)
 
@@ -178,7 +264,7 @@ public class Employee
 
 ---
 
-### - [ ] **Step 4: Set up your Postgres database credentials**
+### - [x] **Step 4: Set up your Postgres database credentials**
 
 Before running migrations, make sure you know:
 - **Host** - Usually `localhost` if Postgres is on your machine
@@ -195,7 +281,7 @@ optionsBuilder.UseNpgsql("Host=localhost;Database=ems_db;Username=YOUR_USERNAME;
 
 ---
 
-### - [ ] **Step 5: Create initial migration**
+### - [x] **Step 5: Create initial migration**
 
 ```bash
 dotnet ef migrations add InitialCreate
