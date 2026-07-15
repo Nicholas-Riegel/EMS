@@ -307,7 +307,7 @@ Done. To undo this action, use 'dotnet ef migrations remove'
 
 ---
 
-### - [ ] **Step 6: Apply migration to create the database**
+### - [x] **Step 6: Apply migration to create the database**
 
 ```bash
 dotnet ef database update
