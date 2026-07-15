@@ -43,9 +43,9 @@ while (true){
         case 2:
         
             Console.WriteLine("Here are all the Employees");
-            foreach (Employee emp in employeesList)
+            foreach (Employee e in employeesList)
             {
-                Console.WriteLine($"Name: {emp.Name}, Age: {emp.Age}");
+                Console.WriteLine($"Name: {e.Name}, Age: {e.Age}");
             }
         
             break;
