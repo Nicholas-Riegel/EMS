@@ -1,9 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EMS.Services;
 using EMS.Models;
-using EMS.Data;
-
-string? input;
-string? employeeName;
 
 Console.WriteLine("Welcome to the Employee Management System.");
 
@@ -12,32 +8,31 @@ while (true){
 
     Console.WriteLine("Please select one of the following options: \n1. View Employees \n2. Add Employee \n3. Update Employee \n4. Delete Employee \n5. Exit");
     
-    input = Console.ReadLine();
+    string? input = Console.ReadLine();
     if (!int.TryParse(input, out int selection))
     {
         Console.WriteLine("Invalid choice!");
+        continue;
     }
     
     switch (selection){
 
-        case 1: // View all employees
+        // View all employees
+        case 1: 
             
             Console.WriteLine("Here are all the Employees:");
-            using (var context = new AppDbContext())
+
+            foreach (var emp in EmployeeService.ViewAll())
             {
-                var employees = context.Employees.ToList();
-                foreach (var emp in employees)
-                {
-                    Console.WriteLine($"Id: {emp.Id}, Name: {emp.Name}, Age: {emp.Age}");
-                }
+                Console.WriteLine($"Id: {emp.Id}, Name: {emp.Name}, Age: {emp.Age}");
             }
-        
             break;
         
-        case 2: // Add employee
+        // Add employee
+        case 2: 
         
             Console.WriteLine("Enter employee name:");
-            employeeName = Console.ReadLine();
+            string? employeeName = Console.ReadLine();
             if (string.IsNullOrEmpty(employeeName))
             {
                 Console.WriteLine("Invalid name!");
@@ -52,22 +47,14 @@ while (true){
                 break;
             }
             
-            using (var context = new AppDbContext())
-            {
-                var employee = new Employee 
-                { 
-                    Name = employeeName, 
-                    Age = employeeAge, 
-                };
-                context.Employees.Add(employee);
-                context.SaveChanges(); // Actually saves to database
-            }
+            EmployeeService.AddEmployee(employeeName, employeeAge);
+            
             Console.WriteLine("Employee added successfully!");
             
             break;
-            
         
-        case 3: // Edit employee
+        // Edit employee
+        case 3: 
         
             Console.WriteLine("Please enter Employee id:");
             input = Console.ReadLine();
@@ -92,54 +79,42 @@ while (true){
                 Console.WriteLine("Invalid age!");
                 break;
             }
-
-            using (var context = new AppDbContext())
+            
+            if (EmployeeService.EditEmployee(employeeId, employeeName, employeeAge))
             {
-                var employee = context.Employees.Find(employeeId); // Find by ID
-                if (employee != null)
-                {
-                    employee.Name = employeeName;
-                    employee.Age = employeeAge;
-                    context.SaveChanges();
-                    Console.WriteLine("Employee updated!");
-                }
-                else
-                {
-                    Console.WriteLine("Employee not found with that id.");
-                    break;
-                }
+                Console.WriteLine("Employee updated!");
             }
+            else
+            {
+                Console.WriteLine("Employee not found with that id.");
+            }            
 
             break;
         
-        case 4: // Delete employee
-        
+        // Delete employee
+        case 4: 
+            
             Console.WriteLine("Please enter Employee id:");
             input = Console.ReadLine();
             if (!int.TryParse(input, out employeeId))
             {
                 Console.WriteLine("Invalid id!");
-                break;
+                return;
             }
             
-            using (var context = new AppDbContext())
+            if (EmployeeService.DeleteEmployee(employeeId))
             {
-                var employee = context.Employees.Find(employeeId);
-                if (employee != null)
-                {
-                    context.Employees.Remove(employee);
-                    context.SaveChanges();
-                    Console.WriteLine("Employee removed!");
-                } 
-                else
-                {
-                    Console.WriteLine("Employee does not exist with that id.");
-                    break;
-                }
+                Console.WriteLine("Employee removed!");
             }
+            else
+            {
+                Console.WriteLine("Employee does not exist with that id.");
+            }
+
             break;
         
-        case 5: // Exit program
+        // Exit program
+        case 5: 
         
             Console.WriteLine("Bye!");
             return;

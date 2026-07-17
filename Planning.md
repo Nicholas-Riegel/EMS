@@ -57,7 +57,7 @@ A simple console-based CRUD (Create, Read, Update, Delete) application for manag
 
 ---
 
-### 📋 Version 2 (Planned)
+### ✅ Version 2 (Completed)
 **Goal:** Refactor to separate concerns - move database logic out of Program.cs
 
 **What you'll learn:**
@@ -97,11 +97,118 @@ EMS/
 └── EMS.csproj
 ```
 
-**Tag:** `v2` (when complete)
+**Tag:** `v2`
 
 ---
 
-## Project Complete!
+### 📋 Version 3 (Planned)
+**Goal:** Add unit testing and refactor service layer for better testability
+
+**What you'll learn:**
+- Unit testing fundamentals (Arrange-Act-Assert pattern)
+- xUnit testing framework
+- Test-driven thinking
+- Designing testable code
+- In-memory database testing with EF Core
+- Separating UI logic from business logic
+
+**Technologies to add:**
+- xUnit.net (testing framework)
+- Microsoft.EntityFrameworkCore.InMemory (for testing)
+- (Optional) Moq (mocking framework for advanced scenarios)
+
+**Tasks:**
+
+**Part 1: Refactor EmployeeService for Testability**
+1. Split service methods into two layers:
+   - **Data methods** (pure database operations, no Console I/O):
+     - `List<Employee> GetAllEmployees()`
+     - `bool AddEmployee(string name, int age)`
+     - `bool UpdateEmployee(int id, string name, int age)`
+     - `bool DeleteEmployee(int id)`
+     - `Employee? GetEmployeeById(int id)`
+   - **UI helper methods** (optional, handle Console I/O):
+     - Keep existing `ViewAll()`, `AddEmployee()` (no params), etc. if desired
+     - OR move all Console.ReadLine() logic back to Program.cs
+2. Update Program.cs to call the refactored methods
+
+**Part 2: Set Up Testing Project**
+1. Create new xUnit test project: `EMS.Tests`
+2. Add project reference to main EMS project
+3. Install required NuGet packages (xUnit, InMemory provider)
+4. Set up test project structure
+
+**Part 3: Write Unit Tests**
+1. Test AddEmployee:
+   - Valid employee creation returns true
+   - Empty name returns false
+   - Invalid age returns false (if validation added)
+2. Test UpdateEmployee:
+   - Updating existing employee returns true
+   - Updating non-existent employee returns false
+   - Invalid data returns false
+3. Test DeleteEmployee:
+   - Deleting existing employee returns true
+   - Deleting non-existent employee returns false
+4. Test GetAllEmployees:
+   - Returns empty list when database is empty
+   - Returns all employees when database has data
+
+**Benefits:**
+- Catch bugs automatically before manual testing
+- Refactor with confidence (tests verify nothing breaks)
+- Learn professional development practices
+- Service layer becomes truly reusable (no UI dependencies)
+- Foundation for future TDD (Test-Driven Development)
+
+**Example structure after V3:**
+```
+EMS/
+├── Models/
+│   └── Employee.cs
+├── Data/
+│   └── AppDbContext.cs
+├── Services/
+│   └── EmployeeService.cs    ← Refactored (testable)
+├── Program.cs
+└── EMS.csproj
+
+EMS.Tests/                     ← New!
+├── EmployeeServiceTests.cs
+└── EMS.Tests.csproj
+```
+
+**Tag:** `v3` (when complete)
+
+---
+
+## Future Enhancement Ideas
+
+- V4: Dependency Injection (DI) and proper service lifetime management
+- V5: Add more employee fields (Department, Email, Phone)
+- V6: Advanced queries (search, filter, sort)
+- V7: Input validation library (FluentValidation)
+- V8: Convert to ASP.NET Core Web API
+- V9: Add authentication/authorization
+
+---
+
+## Project Status
+
+**Current Version:** V2 ✅
+
+This project teaches core C# development skills through practical, incremental learning:
+- ✅ Basic C# console programming
+- ✅ Database integration with EF Core  
+- ✅ Clean code architecture patterns
+- 📋 Unit testing and testable design (V3)
+
+**What you've built so far:**
+A working CRUD application with database persistence and separation of concerns!
+
+---
+
+## Project Complete! (Original)
 
 This covers the core learning goals:
 - ✅ Basic C# console programming
